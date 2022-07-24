@@ -1,0 +1,36 @@
+//Receiver Code (Hand) - Mert Arduino and Tech
+
+#include <Servo.h>    //the library which helps us to control the servo motor
+#include <SPI.h>      //the communication interface with the modem
+#include "RF24.h"     //the library which helps us to control the radio modem
+
+//define the servo name
+Servo myServo1;
+
+RF24 radio(9,10);     /*This object represents a modem connected to the Arduino. 
+                      Arguments 9 and 10 are a digital pin numbers to which signals 
+                      CE and CSN are connected.*/
+
+const uint64_t pipe = 0xE8E8F0F0E1LL; //the address of the modem,that will receive data from the Arduino.
+
+int msg[1];
+
+void setup(){
+
+  //define the servo input pins
+  myServo1.attach(15); //A1
+  radio.begin();                    //it activates the modem.
+  radio.openReadingPipe(1, pipe);   //determines the address of our modem which receive data.
+  radio.startListening();           //enable receiving data via modem
+  }
+
+
+void loop(){
+  if(radio.available()){
+    bool done = false;
+    while (!done){
+    done = radio.read(msg, sizeof(msg));
+    myServo1.write(msg[0]); //A1
+    }
+  }
+}
