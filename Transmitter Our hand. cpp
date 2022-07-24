@@ -1,0 +1,30 @@
+//Transmitter Code (Glove) - Mert Arduino and Tech
+
+#include <SPI.h>                      //the communication interface with the modem
+#include "RF24.h"                     //the library which helps us to control the radio modem
+
+int msg[1]; //Total number of data to be sent (data package)
+
+//define the flex sensor input pins
+int flex_1 = A1;
+
+//define variables for flex sensor values
+int flex_1_val;
+
+RF24 radio(9,10);                     //9 and 10 are a digital pin numbers to which signals CE and CSN are connected.
+                                      
+const uint64_t pipe = 0xE8E8F0F0E1LL; //the address of the modem, that will receive data from Arduino.
+
+
+void setup(void){
+  Serial.begin(9600);
+  radio.begin();                      //it activates the modem.
+  radio.openWritingPipe(pipe);        //sets the address of the receiver to which the program will send data.
+}
+
+void loop(void){
+  flex_1_val = analogRead(flex_1);
+  flex_1_val = map(flex_1_val, 550, 700, 90, 175);
+  msg[0] = flex_1_val;
+  radio.write(msg, sizeof(msg));
+}
